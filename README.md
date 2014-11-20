@@ -3,15 +3,15 @@
 ###Tool for loading lua-based script from file to ESP8266 with nodemcu firmware
 version 0.2
 
-#Summary
+###Summary
 
 - allow easy load any lua-based script into ESP8266 with [NodeMcu firmware](https://github.com/nodemcu/nodemcu-firmware)
 
-#Requirements
+###Requirements
 
 python 2.7, pyserial (as for esptool)
 
-#Run
+###Run
 
 ####Examples:
 
