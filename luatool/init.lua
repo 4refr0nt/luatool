@@ -4,5 +4,5 @@ print('set mode=STATION (mode=',wifi.getmode(),')')
 print('MAC=',wifi.sta.getmac())
 print('set wifi')
 -- wifi config start
-wifi.sta.config("BRUC2","MasterPasswordVictorEvaVarvara")
+wifi.sta.config("ssid","MasterPassword")
 -- wifi config end
