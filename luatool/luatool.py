@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# ESP8266 lua
+# ESP8266 luatool
+# Author e-mail: 4ref0nt@gmail.com
+# Site: http://esp8266.ru
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,10 +21,11 @@ import serial
 import getopt
 import time
 
+version="0.2"
 
 def writer(data):
     time.sleep(0.1)
-    data = data.strip().split("--")
+    data = data.split("--")
     if len( data[0] ) > 0:
         s.write("file.writeline([[" + data[0] + "]])\r")
         sys.stdout.write(data[0])
@@ -35,7 +38,8 @@ def usage():
     options:
     -p, --port=PORT: port, a number, default = 0 or a device name
     -b, --baud=BAUD: baudrate, default 9600
-    -f, --file=FILE: lua script file, default init.lua
+    -f, --file=FROM DISK FILE: lua script file, default main.lua
+    -t, --to=TO FLASH FILE: lua script file in flash, default main.lua
  
  """ % sys.argv[0])
  
@@ -43,13 +47,14 @@ if __name__ == '__main__':
     #initialize with defaults
     port  = "COM3"
     baudrate = 9600
-    fn = "init.lua"
+    fn = "main.lua"
+    ft = "main.lua"
 
     #parse command line options
     try:
         opts, args = getopt.getopt(sys.argv[1:],
-            "hp:b:f:",
-            ["help", "port=", "baud=", "file="]
+            "hp:b:f:t:",
+            ["help", "port=", "baud=", "file=", "to="]
         )
     except getopt.GetoptError:
         # print help information and exit:
@@ -70,8 +75,10 @@ if __name__ == '__main__':
                 baudrate = int(a)
             except ValueError:
                 raise ValueError, "Baudrate must be a integer number, not %r" % a
-        elif o in ("-f", "--file"):     #specified port
+        elif o in ("-f", "--file"):     #specified file from
             fn = a
+        elif o in ("-t", "--fo"):     #specified file to
+            ft = a
     #open file
     try:
         f = open(fn,"rt")
@@ -86,15 +93,16 @@ if __name__ == '__main__':
         sys.exit(1)
     sys.stderr.write("Downloader start\r\n")
     sys.stderr.write("start writing...\r\n")
-    s.write("file.open(\"init.lua\", \"w\")\r")
-    s.write("file.writeline([[print(1)]])\r")
+    s.write("file.open(\""+ft+"\", \"w\")\r")    # if file not found, we create
+    s.write("file.writeline([[print(1)]])\r")    # not empty file
     s.write("file.close()\r")
-    s.write("file.open(\"init.lua\", \"w+\")\r")
+    s.write("file.open(\""+ft+"\", \"w+\")\r")   # write from begin of file
+    s.write("file.writeline([[print(\"lua script loaded by luatool " + version + "\")]])\r")
     line = f.readline()
     while line != '':
-        writer(line.rstrip())
+        writer(line.strip())
         line = f.readline()
     s.write("file.close()\r")
     s.close()
     f.close()
-    sys.stderr.write("Down.\r\n")
+    sys.stderr.write("All down.\r\n")
