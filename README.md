@@ -11,6 +11,9 @@ version 0.2
 
 python 2.7, pyserial (as for esptool)
 
+###Discuss
+[http://esp8266.ru](http://esp8266.ru/forum/threads/luatool.11/)
+
 ###Run
 
 ####Examples:
