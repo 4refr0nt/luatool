@@ -21,15 +21,44 @@ import serial
 import getopt
 import time
 
-version="0.3"
+version="0.4"
 
+def writeln(data):
+    if s.inWaiting() > 0:
+       s.flushInput()
+    if len( data ) > 0:
+        sys.stdout.write("\r\n->")
+        sys.stdout.write(data.split("\r")[0])
+#        sys.stdout.write("\r\n")
+    s.write(data)
+    line = ''
+    char = ''
+    while char != chr(62) : # '>'
+        char = s.read(1)
+        if char == '' :
+            raise Exception('No proper answer from LuaMCU')
+        if char == chr(13) or char == chr(10) :
+           if line != '':
+              if line+'\r' == data :
+                 sys.stdout.write(" -> ok")
+              else :
+                 if line[:4] == "lua:" :
+                    sys.stdout.write("\r\n\r\nLUA ERROR: %s" % line)
+                    raise Exception('ERROR from LUA interpreter\r\n\r\n')
+                 else :
+                    data = data.split("\r")[0]
+                    sys.stdout.write("\r\n\r\nERROR")
+                    sys.stdout.write("\r\n send string    : '%s'" % data)
+                    sys.stdout.write("\r\n expected echo  : '%s'" % data)
+                    sys.stdout.write("\r\n but got answer : '%s'" % line)
+                    sys.stdout.write("\r\n\r\n")
+                    raise Exception('Error sending data to LuaMCU\r\n\r\n')
+              line = ''
+        else :
+           line += char
+ 
 def writer(data):
-    time.sleep(0.1)
-    data = data.split("--")
-    if len( data[0] ) > 0:
-        s.write("file.writeline([[" + data[0] + "]])\r")
-        sys.stdout.write(data[0])
-        sys.stdout.write("\r\n")
+    writeln("file.writeline([[" + data + "]])\r")
 
 def usage():
     sys.stderr.write("""USAGE: %s [options]
@@ -92,18 +121,31 @@ if __name__ == '__main__':
         sys.stderr.write("Could not open port %s\n" % (port))
         sys.exit(1)
     sys.stderr.write("Downloader start\r\n")
-    sys.stderr.write("start writing...\r\n")
-    s.write("file.open(\""+ft+"\", \"w\")\r")    # if file not found, we create
-    s.write("file.writeline([[print(1)]])\r")    # not empty file
-    s.write("file.close()\r")
-    s.write("file.open(\""+ft+"\", \"w+\")\r")   # write from begin of file
-    s.write("file.writeline([[print(\"lua script loaded by luatool " + version + "\")]])\r")
+
+#    try:
+#        lf = open(sys.argv[0].split(".")[0]+".log","w")
+#    except:
+#         log = 0
+
+    s.timeout = 3
+    sys.stderr.write("Set timeout %s\r\n" % s.timeout)
+    s.interCharTimeout = 3
+    sys.stderr.write("Set interCharTimeout %s\r\n" % s.interCharTimeout)
+    sys.stderr.write("Stage 1. Deleting old file from flash memory")
+    writeln("file.open(\""+ft+"\", \"w\")\r")
+    writeln("file.close()\r")
+    writeln("file.remove(\""+ft+"\")\r")
+    sys.stderr.write("\r\nStage 2. Creating file in flash memory and write first line")
+    writeln("file.open(\""+ft+"\", \"w+\")\r")
+    writeln("file.writeline([[print(\"lua script loaded by luatool " + version + "\")]])\r")
     line = f.readline()
+    sys.stderr.write("\r\nStage 3. Start writing data to flash memory...")
     while line != '':
         writer(line.strip())
         line = f.readline()
-    time.sleep(0.1)
-    s.write("file.close()\r")
-    s.close()
     f.close()
-    sys.stderr.write("All down.\r\n")
+    sys.stderr.write("\r\nStage 4. Flush data and closing file")
+    writeln("file.flush()\r")
+    writeln("file.close()\r")
+    s.close()
+    sys.stderr.write("\r\n--->>> All down <<<---\r\n")
