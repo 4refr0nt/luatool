@@ -21,7 +21,7 @@ import serial
 import getopt
 import time
 
-version="0.2"
+version="0.3"
 
 def writer(data):
     time.sleep(0.1)
