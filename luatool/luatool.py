@@ -102,6 +102,7 @@ if __name__ == '__main__':
     while line != '':
         writer(line.strip())
         line = f.readline()
+    time.sleep(0.1)
     s.write("file.close()\r")
     s.close()
     f.close()
