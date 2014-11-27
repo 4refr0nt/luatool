@@ -16,6 +16,13 @@ python 2.7, pyserial (as for esptool)
 
 ###Changelog
 
+v0.5
+- add new option  -r, --restart : auto restart module, send command "node.restart()", after file load 
+- add new option  -d, --dofile  : auto run, send command "dofile('file')", after file load 
+- delete line "lua script loaded by luatool" for correct line number, lines number now equal lines number in original file
+- add 0.3 sec delay after write
+
+
 v0.4
 - now check proper answer from NodeMCU after send data.
   After send string we expect echo line, if not got it, then error message displayed "Error sending data to LuaMCU"
@@ -33,7 +40,7 @@ Edit file init.lua and set SSID and MasterPassword
 Then disconnect any terminal programm, and at command prompt type
 
 ```
-./luatool -p COM4 -f init.lua -t init.lua
+./luatool -p COM4 -f init.lua -t init.lua 
 
 Downloader start
 Set timeout 3
@@ -44,7 +51,7 @@ Stage 1. Deleting old file from flash memory
 ->file.close() -> ok
 --->>> All down <<<---
 
-./luatool
+./luatool 
 
 Downloader start
 Set timeout 3
@@ -55,7 +62,7 @@ Stage 1. Deleting old file from flash memory
 ->file.close() -> ok
 --->>> All down <<<---
 ```
-Connect you terminal program and send command
+Connect you terminal program and send command (or you can use -r option, when loading file init.lua)
 ```
 node.restart()
 ```
@@ -71,7 +78,7 @@ set wifi
 NodeMcu 0.9.2 build 20141125  powered by Lua 5.1.4
 ```
 
-send command
+send command (or you can use -d option, when loading file main.lua)
 ```
 dofile("main.lua")
 ```
@@ -117,4 +124,8 @@ dofile("main.lua")
 ```
 for executing you lua script
 
+If you want load and autoexecute file main.lua, command dofile("main.lua"), you can use -d option
+```
+./luatool -d
+```
 Typically, place wifi.setmode, wifi.sta.config commands to init.lua file for connecting to you AP with low risk of boot loop, and other code place to main.lua for manually start and debug.
