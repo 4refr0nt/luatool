@@ -1,7 +1,6 @@
 # **luatool** #
 
 ###Tool for loading lua-based script from file to ESP8266 with nodemcu firmware
-version 0.2
 
 ###Summary
 

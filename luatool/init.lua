@@ -5,5 +5,5 @@ print('MAC: ',wifi.sta.getmac())
 print('chip: ',node.chipid())
 print('heap: ',node.heap())
 -- wifi config start
-wifi.sta.config("SSID","MasterPassword")
+wifi.sta.config("BRUC2","MasterPasswordVictorEvaVarvara")
 -- wifi config end

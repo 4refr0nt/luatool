@@ -29,8 +29,8 @@ def writeln(data):
     if len( data ) > 0:
         sys.stdout.write("\r\n->")
         sys.stdout.write(data.split("\r")[0])
-#        sys.stdout.write("\r\n")
     s.write(data)
+    time.sleep(0.3)
     line = ''
     char = ''
     while char != chr(62) : # '>'
