@@ -22,7 +22,7 @@ import serial
 from time import sleep
 import argparse
 
-version="0.6"
+version="0.6.1"
 
 def writeln(data, check = 1):
     if s.inWaiting() > 0:
@@ -68,13 +68,13 @@ def writer(data):
 if __name__ == '__main__':
     # parse arguments or use defaults
     parser = argparse.ArgumentParser(description='ESP8266 Lua script uploader.')
-    parser.add_argument('--port',    default='/dev/ttyUSB0', help='Device name, default /dev/ttyUSB0')
-    parser.add_argument('--baud',    default=9600,           help='Baudrate, default 9600')
-    parser.add_argument('--src',     default='main.lua',     help='Source file on computer, default main.lua')
-    parser.add_argument('--dest',    default='main.lua',     help='Destination file on MCU, default main.lua')
-    parser.add_argument('--restart', action='store_true',    help='Restart MCU after upload')
-    parser.add_argument('--dofile',  action='store_true',    help='Run the Lua script after upload')
-    parser.add_argument('--verbose', action='store_true',    help="Show progress messages.")
+    parser.add_argument('-p', '--port',    default='/dev/ttyUSB0', help='Device name, default /dev/ttyUSB0')
+    parser.add_argument('-b', '--baud',    default=9600,           help='Baudrate, default 9600')
+    parser.add_argument('-f', '--src',     default='main.lua',     help='Source file on computer, default main.lua')
+    parser.add_argument('-t', '--dest',    default='main.lua',     help='Destination file on MCU, default main.lua')
+    parser.add_argument('-r', '--restart', action='store_true',    help='Restart MCU after upload')
+    parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
+    parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
     args = parser.parse_args()
 
     # open source file for reading
@@ -126,7 +126,10 @@ if __name__ == '__main__':
        writeln("dofile(\""+args.dest+"\")\r",0)
 
     # close serial port
+    s.flush()
     s.close()
+
+    # flush screen
     sys.stdout.flush()
     sys.stderr.flush()
     sys.stderr.write("\r\n--->>> All done <<<---\r\n")
