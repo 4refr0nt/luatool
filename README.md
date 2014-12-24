@@ -16,6 +16,10 @@ python 2.7, pyserial (as for esptool)
 
 ###Changelog
 
+v0.6.1
+- put short versions of arguments back, see issue #2
+- flush serial port, fixes issue #1
+
 v0.6
 - switched to argparse from getopts, renamed some arguments
 - removed call-home from main.lua
