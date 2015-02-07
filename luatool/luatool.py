@@ -22,7 +22,7 @@ import serial
 from time import sleep
 import argparse
 
-version="0.6.1"
+version="0.6.2"
 
 def writeln(data, check = 1):
     if s.inWaiting() > 0:
