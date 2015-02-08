@@ -22,7 +22,7 @@ import serial
 from time import sleep
 import argparse
 
-version="0.6.1"
+version="0.6.2"
 
 def writeln(data, check = 1):
     if s.inWaiting() > 0:
@@ -39,7 +39,7 @@ def writeln(data, check = 1):
            char = s.read(1)
            if char == '' :
                raise Exception('No proper answer from MCU')
-           if char == chr(13) or char == chr(10) :
+           if char == chr(13) or char == chr(10) : # LF or CR
               if line != '':
                  if line+'\r' == data :
                     sys.stdout.write(" -> ok")
@@ -62,7 +62,7 @@ def writeln(data, check = 1):
        sys.stdout.write(" -> send without check")
 
 def writer(data):
-    writeln("file.writeline([[" + data + "]])\r")
+    writeln("file.writeline([==[" + data + "]==])\r")
 
 
 if __name__ == '__main__':
@@ -84,7 +84,22 @@ if __name__ == '__main__':
         sys.stderr.write("Could not open input file \"%s\"\n" % args.src)
         sys.exit(1)
 
-    # open serial port
+    # Verify the selected file will not exceed the size of the serial buffer.
+    # The size of the buffer is 256. This script does not accept files with
+    # lines longer than 230 characters to have some room for command overhead.
+    for Ln in f:
+        if len(Ln) > 230:
+            sys.stderr.write("File \"%s\" contains a line with more than 240 "\
+            "characters. This exceeds the size of the serial buffer.\n"
+            % args.src)
+            f.close()
+            sys.exit(1)
+
+    # Go back to the beginning of the file after verifying it has the correct 
+    # line length
+    f.seek(0)
+
+    # Open the selected serial port
     try:
         s = serial.Serial(args.port, args.baud)
     except:

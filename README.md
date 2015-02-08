@@ -15,6 +15,9 @@ python 2.7, pyserial (as for esptool)
 
 
 ###Changelog
+v0.6.2
+- added support for nested strings
+- added check to verify the UART buffer will not overflow.
 
 v0.6.1
 - put short versions of arguments back, see issue #2
