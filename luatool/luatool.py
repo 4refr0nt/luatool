@@ -72,6 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--baud',    default=9600,           help='Baudrate, default 9600')
     parser.add_argument('-f', '--src',     default='main.lua',     help='Source file on computer, default main.lua')
     parser.add_argument('-t', '--dest',    default='main.lua',     help='Destination file on MCU, default main.lua')
+    parser.add_argument('-c', '--compile', action='store_true',    help='Compile lua to lc after upload')
     parser.add_argument('-r', '--restart', action='store_true',    help='Restart MCU after upload')
     parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
     parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
@@ -95,7 +96,7 @@ if __name__ == '__main__':
             f.close()
             sys.exit(1)
 
-    # Go back to the beginning of the file after verifying it has the correct 
+    # Go back to the beginning of the file after verifying it has the correct
     # line length
     f.seek(0)
 
@@ -133,6 +134,12 @@ if __name__ == '__main__':
     if args.verbose: sys.stderr.write("\r\nStage 4. Flush data and closing file")
     writeln("file.flush()\r")
     writeln("file.close()\r")
+
+    # compile?
+    if args.compile:
+       if args.verbose: sys.stderr.write("\r\nStage 5. Compiling")
+       writeln("node.compile(\""+args.dest+"\")\r")
+       writeln("file.remove(\""+args.dest+"\")\r")
 
     # restart or dofile
     if args.restart:
