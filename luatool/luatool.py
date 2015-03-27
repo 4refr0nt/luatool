@@ -64,6 +64,18 @@ def writeln(data, check = 1):
 def writer(data):
     writeln("file.writeline([==[" + data + "]==])\r")
 
+def openserial(args):
+    # Open the selected serial port
+    try:
+        s = serial.Serial(args.port, args.baud)
+    except:
+        sys.stderr.write("Could not open port %s\n" % (args.port))
+        sys.exit(1)
+    if args.verbose: sys.stderr.write("Set timeout %s\r\n" % s.timeout)
+    s.timeout = 3
+    if args.verbose: sys.stderr.write("Set interCharTimeout %s\r\n" % s.interCharTimeout)
+    s.interCharTimeout = 3
+    return s
 
 if __name__ == '__main__':
     # parse arguments or use defaults
@@ -75,7 +87,17 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--restart', action='store_true',    help='Restart MCU after upload')
     parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
     parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
+    parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     args = parser.parse_args()
+
+    if args.list:
+        s = openserial(args)
+        writeln("local l = file.list();for k,v in pairs(l) do print('name:'..k..', size:'..v)end\r", 0)
+        while True :
+            char = s.read(1)
+            if char == '' or char == chr(62): break
+            sys.stdout.write(char)
+        sys.exit(0)
 
     # open source file for reading
     try:
@@ -95,23 +117,15 @@ if __name__ == '__main__':
             f.close()
             sys.exit(1)
 
-    # Go back to the beginning of the file after verifying it has the correct 
+    # Go back to the beginning of the file after verifying it has the correct
     # line length
     f.seek(0)
 
     # Open the selected serial port
-    try:
-        s = serial.Serial(args.port, args.baud)
-    except:
-        sys.stderr.write("Could not open port %s\n" % (args.port))
-        sys.exit(1)
+    s = openserial(args)
 
     # set serial timeout
     if args.verbose: sys.stderr.write("Upload starting\r\n")
-    s.timeout = 3
-    if args.verbose: sys.stderr.write("Set timeout %s\r\n" % s.timeout)
-    s.interCharTimeout = 3
-    if args.verbose: sys.stderr.write("Set interCharTimeout %s\r\n" % s.interCharTimeout)
 
     # remove existing file on device
     if args.verbose: sys.stderr.write("Stage 1. Deleting old file from flash memory")
