@@ -21,6 +21,7 @@ import sys
 import serial
 from time import sleep
 import argparse
+from os.path import basename
 
 version="0.6.2"
 
@@ -71,11 +72,14 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--port',    default='/dev/ttyUSB0', help='Device name, default /dev/ttyUSB0')
     parser.add_argument('-b', '--baud',    default=9600,           help='Baudrate, default 9600')
     parser.add_argument('-f', '--src',     default='main.lua',     help='Source file on computer, default main.lua')
-    parser.add_argument('-t', '--dest',    default='main.lua',     help='Destination file on MCU, default main.lua')
+    parser.add_argument('-t', '--dest',    default=None,           help='Destination file on MCU, default to source file name')
     parser.add_argument('-r', '--restart', action='store_true',    help='Restart MCU after upload')
     parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
     parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
     args = parser.parse_args()
+
+    if args.dest is None:
+        args.dest = basename(args.src)
 
     # open source file for reading
     try:
@@ -95,7 +99,7 @@ if __name__ == '__main__':
             f.close()
             sys.exit(1)
 
-    # Go back to the beginning of the file after verifying it has the correct 
+    # Go back to the beginning of the file after verifying it has the correct
     # line length
     f.seek(0)
 
