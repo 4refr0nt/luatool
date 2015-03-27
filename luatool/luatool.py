@@ -137,7 +137,9 @@ if __name__ == '__main__':
 
     # compile?
     if args.compile:
+       if args.verbose: sys.stderr.write("\r\nStage 5. Compiling")
        writeln("node.compile(\""+args.dest+"\")\r")
+       writeln("file.remove(\""+args.dest+"\")\r")
 
     # restart or dofile
     if args.restart:
