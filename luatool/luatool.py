@@ -42,6 +42,7 @@ def writeln(data, check = 1):
                raise Exception('No proper answer from MCU')
            if char == chr(13) or char == chr(10) : # LF or CR
               if line != '':
+                 line = line.strip()
                  if line+'\r' == data :
                     sys.stdout.write(" -> ok")
                  else :
