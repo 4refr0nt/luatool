@@ -23,7 +23,7 @@ from time import sleep
 import argparse
 from os.path import basename
 
-version="0.6.2"
+version="0.6.3"
 
 def writeln(data, check = 1):
     if s.inWaiting() > 0:
