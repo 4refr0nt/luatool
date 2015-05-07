@@ -8,6 +8,11 @@
 
 - Allow easy uploading of any Lua-based script into the ESP8266 flash memory with [NodeMcu firmware](https://github.com/nodemcu/nodemcu-firmware)
 
+###Other projects
+Another my project for NodeMCU: ESPlorer  Integrated Development Environment (IDE) for ESP8266 developers
+- [ESPlorer home page and latest binaries](http://esp8266.ru/esplorer/)
+- [ESPlorer source code](https://github.com/4refr0nt/ESPlorer)
+
 ###Requirements
 
 python 2.7, pyserial (as for esptool)
@@ -17,6 +22,9 @@ python 2.7, pyserial (as for esptool)
 
 
 ###Changelog
+v0.6.3
+- fix download bug
+- 
 v0.6.2
 - added support for nested strings
 - added check to verify the UART buffer will not overflow.
