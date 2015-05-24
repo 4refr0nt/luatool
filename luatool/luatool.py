@@ -98,6 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
     parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
+    parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     args = parser.parse_args()
 
     if args.list:
@@ -108,6 +109,27 @@ if __name__ == '__main__':
             if char == '' or char == chr(62):
                 break
             sys.stdout.write(char)
+        sys.exit(0)
+
+    if args.wipe:
+        s = openserial(args)
+        writeln("local l = file.list();for k,v in pairs(l) do print(k)end\r", 0)
+        file_list = []
+        fn = ""
+        while True:
+            char = s.read(1)
+            if char == '' or char == chr(62):
+                break
+            if char not in ['\r', '\n']:
+                fn += char
+            else:
+                if fn:
+                    file_list.append(fn.strip())
+                fn = ''
+        for fn in file_list[1:]:  # first line is the list command sent to device
+            if args.verbose:
+                sys.stderr.write("Delete file {} from device.\r\n".format(fn))
+            writeln("file.remove(\"" + fn + "\")\r")
         sys.exit(0)
 
     if args.dest is None:
