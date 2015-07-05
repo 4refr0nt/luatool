@@ -97,6 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--restart', action='store_true',    help='Restart MCU after upload')
     parser.add_argument('-d', '--dofile',  action='store_true',    help='Run the Lua script after upload')
     parser.add_argument('-v', '--verbose', action='store_true',    help="Show progress messages.")
+    parser.add_argument('-a', '--append',  action='store_true',    help='Append source file to destination file.')
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     args = parser.parse_args()
@@ -165,16 +166,24 @@ if __name__ == '__main__':
         sys.stderr.write("Upload starting\r\n")
 
     # remove existing file on device
-    if args.verbose:
-        sys.stderr.write("Stage 1. Deleting old file from flash memory")
-    writeln("file.open(\"" + args.dest + "\", \"w\")\r")
-    writeln("file.close()\r")
-    writeln("file.remove(\"" + args.dest + "\")\r")
+    if args.append==False:
+        if args.verbose:
+            sys.stderr.write("Stage 1. Deleting old file from flash memory")
+        writeln("file.open(\"" + args.dest + "\", \"w\")\r")
+        writeln("file.close()\r")
+        writeln("file.remove(\"" + args.dest + "\")\r")
+    else:
+        if args.verbose:
+            sys.stderr.write("[SKIPPED] Stage 1. Deleting old file from flash memory [SKIPPED]")
+
 
     # read source file line by line and write to device
     if args.verbose:
         sys.stderr.write("\r\nStage 2. Creating file in flash memory and write first line")
-    writeln("file.open(\"" + args.dest + "\", \"w+\")\r")
+    if args.append: 
+        writeln("file.open(\"" + args.dest + "\", \"a+\")\r")
+    else:
+        writeln("file.open(\"" + args.dest + "\", \"w+\")\r")
     line = f.readline()
     if args.verbose:
         sys.stderr.write("\r\nStage 3. Start writing data to flash memory...")
