@@ -100,6 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--append',  action='store_true',    help='Append source file to destination file.')
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
+    parser.add_argument('--delete',    default=None,    help='Delete a lua/lc file from device.')
     args = parser.parse_args()
 
     if args.list:
@@ -131,6 +132,11 @@ if __name__ == '__main__':
             if args.verbose:
                 sys.stderr.write("Delete file {} from device.\r\n".format(fn))
             writeln("file.remove(\"" + fn + "\")\r")
+        sys.exit(0)
+
+    if args.delete:
+        s = openserial(args)
+        writeln("file.remove(\"" + args.delete + "\")\r")
         sys.exit(0)
 
     if args.dest is None:
