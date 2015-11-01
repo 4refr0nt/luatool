@@ -100,6 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--append',  action='store_true',    help='Append source file to destination file.')
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
+    parser.add_argument('-i', '--id',    action='store_true',    help='Query the modules chip id.')
     args = parser.parse_args()
 
     if args.list:
@@ -110,6 +111,19 @@ if __name__ == '__main__':
             if char == '' or char == chr(62):
                 break
             sys.stdout.write(char)
+        sys.exit(0)
+
+    if args.id:
+        s = openserial(args)
+        writeln("=node.chipid()\r", 0)
+        id=""
+        while True:
+            char = s.read(1)
+            if char == '' or char == chr(62):
+                break
+            if char.isdigit():
+                id += char
+        print("\n"+id)
         sys.exit(0)
 
     if args.wipe:
