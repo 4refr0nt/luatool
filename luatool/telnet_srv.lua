@@ -5,8 +5,11 @@ function setupTelnetServer()
     inUse = false
     function listenFun(sock)
         if inUse then
+            sock:send("Already in use.\n")
+            sock:close()
             return
         end
+        inUse = true
 
         function s_output(str)
             if(sock ~=nil) then
@@ -22,6 +25,7 @@ function setupTelnetServer()
 
         sock:on("disconnection",function(sock)
                 node.output(nil)
+                inUse = false
             end)
 
         sock:send("Welcome to NodeMCU world.\n> ")

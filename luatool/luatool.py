@@ -20,6 +20,7 @@
 import sys
 import serial
 from time import sleep
+import socket
 import argparse
 from os.path import basename
 
@@ -114,6 +115,54 @@ class SerialTransport(AbstractTransport):
         self.serial.close()
 
 
+class TcpSocketTransport(AbstractTransport):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.socket = None
+
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except socket.error as e:
+            raise TransportError(e.strerror)
+
+        try:
+            self.socket.connect((host, port))
+        except socket.error as e:
+            raise TransportError(e.strerror)
+        # read intro from telnet server (see telnet_srv.lua)
+        self.socket.recv(50)
+
+    def writeln(self, data, check=1):
+        if len(data) > 0:
+            sys.stdout.write("\r\n->")
+            sys.stdout.write(data.split("\r")[0])
+        self.socket.sendall(data)
+        if check > 0:
+            self.performcheck(data)
+        else:
+            sys.stdout.write(" -> send without check")
+
+    def read(self, length):
+        return self.socket.recv(length)
+
+    def close(self):
+        self.socket.close()
+
+
+def decidetransport(cliargs):
+    if cliargs.ip:
+        data = cliargs.ip.split(':')
+        host = data[0]
+        if len(data) == 2:
+            port = int(data[1])
+        else:
+            port = 23
+        return TcpSocketTransport(host, port)
+    else:
+        return SerialTransport(cliargs.port, cliargs.baud)
+
+
 if __name__ == '__main__':
     # parse arguments or use defaults
     parser = argparse.ArgumentParser(description='ESP8266 Lua script uploader.')
@@ -128,11 +177,12 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--append',  action='store_true',    help='Append source file to destination file.')
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
-    parser.add_argument('-i', '--id',    action='store_true',    help='Query the modules chip id.')
-    parser.add_argument('--delete',    default=None,    help='Delete a lua/lc file from device.')
+    parser.add_argument('-i', '--id',      action='store_true',    help='Query the modules chip id.')
+    parser.add_argument('--delete',        default=None,           help='Delete a lua/lc file from device.')
+    parser.add_argument('--ip',            default=None,           help='Connect to a telnet server on the device (--ip IP[:port])')
     args = parser.parse_args()
 
-    transport = SerialTransport(args.port, args.baud)
+    transport = decidetransport(args)
 
     if args.list:
         transport.writeln("local l = file.list();for k,v in pairs(l) do print('name:'..k..', size:'..v)end\r", 0)
