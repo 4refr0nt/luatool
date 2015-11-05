@@ -152,3 +152,25 @@ If you want load and autoexecute file main.lua, command dofile("main.lua"), you 
 ./luatool.py --dofile
 ```
 Typically, place wifi.setmode, wifi.sta.config commands to init.lua file for connecting to you AP with low risk of boot loop, and other code place to main.lua for manually start and debug.
+
+####Alternative use:
+
+This requires a nodemcu based module already configured to meet the following conditions:
+
+- the module is accessible via TCP/IP 
+- the telnet server (file: **telnet_srv.lua**) is running 
+
+Now the option **--ip IP[:PORT]** enables you to specify an IP and optionally a port (if changed for the telnet server)
+that will be used to communicate with the module via TCP/IP.
+
+####Examples:
+
+```
+./luatool.py --ip 192.168.12.34 --src file.lua --dest test.lua --dofile 
+```
+
+- --ip - the IP to connect to. Note that no Port is given, so 23 will be used (can be changed in **telnet_srv.lua**)
+- --src - source disk file, default main.lua
+- --dest - destination flash file, default main.lua
+- --dofile - run the just uploaded file
+
