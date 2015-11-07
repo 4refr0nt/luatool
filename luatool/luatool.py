@@ -25,7 +25,7 @@ import argparse
 from os.path import basename
 
 
-version = "0.6.3"
+version = "0.6.4"
 
 
 class TransportError(Exception):
