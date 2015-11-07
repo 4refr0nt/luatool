@@ -22,9 +22,14 @@ python 2.7, pyserial (as for esptool)
 
 
 ###Changelog
+v0.6.4
+- add TCP as possible transport to connect to the module using the supplied telnet server code
+- add --id/-i to query the ID of a module
+- add --delete to remove a given file from the module
+ 
 v0.6.3
 - fix download bug
-- 
+ 
 v0.6.2
 - added support for nested strings
 - added check to verify the UART buffer will not overflow.
