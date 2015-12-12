@@ -178,6 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     parser.add_argument('-i', '--id',      action='store_true',    help='Query the modules chip id.')
+    parser.add_argument('-e', '--echo',    action='store_true',    help='Echo output of MCU until script is terminated.')
     parser.add_argument('--delete',        default=None,           help='Delete a lua/lc file from device.')
     parser.add_argument('--ip',            default=None,           help='Connect to a telnet server on the device (--ip IP[:port])')
     args = parser.parse_args()
@@ -303,6 +304,12 @@ if __name__ == '__main__':
         transport.writeln("node.restart()\r")
     if args.dofile:   # never exec if restart=1
         transport.writeln("dofile(\"" + args.dest + "\")\r", 0)
+
+    if args.echo:
+        if args.verbose:
+            sys.stderr.write("\r\nEchoing MCU output, press Ctrl-C to exit")
+        while True:
+            sys.stdout.write(transport.read(1))
 
     # close serial port
     transport.close()
