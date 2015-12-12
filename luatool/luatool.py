@@ -81,10 +81,11 @@ class AbstractTransport:
 
 
 class SerialTransport(AbstractTransport):
-    def __init__(self, port, baud):
+    def __init__(self, port, baud, delay):
         self.port = port
         self.baud = baud
         self.serial = None
+        self.delay = delay
 
         try:
             self.serial = serial.Serial(port, baud)
@@ -101,7 +102,7 @@ class SerialTransport(AbstractTransport):
             sys.stdout.write("\r\n->")
             sys.stdout.write(data.split("\r")[0])
         self.serial.write(data)
-        sleep(0.3)
+        sleep(self.delay)
         if check > 0:
             self.performcheck(data)
         else:
@@ -160,7 +161,7 @@ def decidetransport(cliargs):
             port = 23
         return TcpSocketTransport(host, port)
     else:
-        return SerialTransport(cliargs.port, cliargs.baud)
+        return SerialTransport(cliargs.port, cliargs.baud, cliargs.delay)
 
 
 if __name__ == '__main__':
@@ -178,6 +179,8 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--list',    action='store_true',    help='List files on device')
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     parser.add_argument('-i', '--id',      action='store_true',    help='Query the modules chip id.')
+    parser.add_argument('-e', '--echo',    action='store_true',    help='Echo output of MCU until script is terminated.')
+    parser.add_argument('--delay',         default=0.3,            help='Delay in seconds between each write.', type=float)
     parser.add_argument('--delete',        default=None,           help='Delete a lua/lc file from device.')
     parser.add_argument('--ip',            default=None,           help='Connect to a telnet server on the device (--ip IP[:port])')
     args = parser.parse_args()
@@ -273,7 +276,7 @@ if __name__ == '__main__':
     # read source file line by line and write to device
     if args.verbose:
         sys.stderr.write("\r\nStage 2. Creating file in flash memory and write first line")
-    if args.append: 
+    if args.append:
         transport.writeln("file.open(\"" + args.dest + "\", \"a+\")\r")
     else:
         transport.writeln("file.open(\"" + args.dest + "\", \"w+\")\r")
@@ -303,6 +306,12 @@ if __name__ == '__main__':
         transport.writeln("node.restart()\r")
     if args.dofile:   # never exec if restart=1
         transport.writeln("dofile(\"" + args.dest + "\")\r", 0)
+
+    if args.echo:
+        if args.verbose:
+            sys.stderr.write("\r\nEchoing MCU output, press Ctrl-C to exit")
+        while True:
+            sys.stdout.write(transport.read(1))
 
     # close serial port
     transport.close()
