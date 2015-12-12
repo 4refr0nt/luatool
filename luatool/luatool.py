@@ -274,7 +274,7 @@ if __name__ == '__main__':
     # read source file line by line and write to device
     if args.verbose:
         sys.stderr.write("\r\nStage 2. Creating file in flash memory and write first line")
-    if args.append: 
+    if args.append:
         transport.writeln("file.open(\"" + args.dest + "\", \"a+\")\r")
     else:
         transport.writeln("file.open(\"" + args.dest + "\", \"w+\")\r")
