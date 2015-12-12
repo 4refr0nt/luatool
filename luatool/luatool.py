@@ -81,10 +81,11 @@ class AbstractTransport:
 
 
 class SerialTransport(AbstractTransport):
-    def __init__(self, port, baud):
+    def __init__(self, port, baud, delay):
         self.port = port
         self.baud = baud
         self.serial = None
+        self.delay = delay
 
         try:
             self.serial = serial.Serial(port, baud)
@@ -101,7 +102,7 @@ class SerialTransport(AbstractTransport):
             sys.stdout.write("\r\n->")
             sys.stdout.write(data.split("\r")[0])
         self.serial.write(data)
-        sleep(0.3)
+        sleep(self.delay)
         if check > 0:
             self.performcheck(data)
         else:
@@ -160,7 +161,7 @@ def decidetransport(cliargs):
             port = 23
         return TcpSocketTransport(host, port)
     else:
-        return SerialTransport(cliargs.port, cliargs.baud)
+        return SerialTransport(cliargs.port, cliargs.baud, cliargs.delay)
 
 
 if __name__ == '__main__':
@@ -179,6 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     parser.add_argument('-i', '--id',      action='store_true',    help='Query the modules chip id.')
     parser.add_argument('-e', '--echo',    action='store_true',    help='Echo output of MCU until script is terminated.')
+    parser.add_argument('--delay',         default=0.3,            help='Delay in seconds between each write.', type=float)
     parser.add_argument('--delete',        default=None,           help='Delete a lua/lc file from device.')
     parser.add_argument('--ip',            default=None,           help='Connect to a telnet server on the device (--ip IP[:port])')
     args = parser.parse_args()
