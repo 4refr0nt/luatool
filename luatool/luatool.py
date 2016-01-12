@@ -70,8 +70,8 @@ class AbstractTransport:
                         else:
                             expected = expected.split("\r")[0]
                             sys.stdout.write("\r\n\r\nERROR")
-                            sys.stdout.write("\r\n send string    : '%s'" % data)
-                            sys.stdout.write("\r\n expected echo  : '%s'" % data)
+                            sys.stdout.write("\r\n send string    : '%s'" % expected)
+                            sys.stdout.write("\r\n expected echo  : '%s'" % expected)
                             sys.stdout.write("\r\n but got answer : '%s'" % line)
                             sys.stdout.write("\r\n\r\n")
                             raise Exception('Error sending data to MCU\r\n\r\n')
