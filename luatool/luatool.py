@@ -54,6 +54,7 @@ class AbstractTransport:
     def performcheck(self, expected):
         line = ''
         char = ''
+        i = -1
         while char != chr(62):  # '>'
             char = self.read(1)
             if char == '':
@@ -78,6 +79,9 @@ class AbstractTransport:
                     line = ''
             else:
                 line += char
+                if char == chr(62) and expected[i] == char:
+                    char = ''
+                i += 1
 
 
 class SerialTransport(AbstractTransport):
