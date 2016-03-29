@@ -241,7 +241,13 @@ if __name__ == '__main__':
 
     # open source file for reading
     try:
-        f = open(args.src, "rt")
+        try:
+            f = open(args.src, "rt")
+        except:
+            import os
+            base_dir = os.path.dirname(os.path.realpath(__file__))
+            f = open(os.path.join(base_dir, args.src), "rt")
+            os.chdir(base_dir)
     except:
         sys.stderr.write("Could not open input file \"%s\"\n" % args.src)
         sys.exit(1)
