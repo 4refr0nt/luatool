@@ -25,6 +25,15 @@ import argparse
 from os.path import basename
 
 
+tqdm_installed = True
+try:
+    from tqdm import tqdm
+except ImportError, e:
+    if e.message == 'No module named tqdm':
+        tqdm_installed = False
+    else:
+        raise
+
 version = "0.6.4"
 
 
@@ -62,9 +71,9 @@ class AbstractTransport:
             if char == chr(13) or char == chr(10):  # LF or CR
                 if line != '':
                     line = line.strip()
-                    if line+'\r' == expected:
+                    if line+'\r' == expected and not args.bar:
                         sys.stdout.write(" -> ok")
-                    else:
+                    elif line+'\r' != expected:
                         if line[:4] == "lua:":
                             sys.stdout.write("\r\n\r\nLua ERROR: %s" % line)
                             raise Exception('ERROR from Lua interpreter\r\n\r\n')
@@ -102,7 +111,7 @@ class SerialTransport(AbstractTransport):
     def writeln(self, data, check=1):
         if self.serial.inWaiting() > 0:
             self.serial.flushInput()
-        if len(data) > 0:
+        if len(data) > 0 and not args.bar:
             sys.stdout.write("\r\n->")
             sys.stdout.write(data.split("\r")[0])
         self.serial.write(data)
@@ -184,12 +193,19 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--wipe',    action='store_true',    help='Delete all lua/lc files on device.')
     parser.add_argument('-i', '--id',      action='store_true',    help='Query the modules chip id.')
     parser.add_argument('-e', '--echo',    action='store_true',    help='Echo output of MCU until script is terminated.')
+    parser.add_argument('--bar',           action='store_true',    help='Show a progress bar for uploads instead of printing each line')
     parser.add_argument('--delay',         default=0.3,            help='Delay in seconds between each write.', type=float)
     parser.add_argument('--delete',        default=None,           help='Delete a lua/lc file from device.')
     parser.add_argument('--ip',            default=None,           help='Connect to a telnet server on the device (--ip IP[:port])')
     args = parser.parse_args()
 
     transport = decidetransport(args)
+
+    if args.bar and not tqdm_installed:
+        sys.stdout.write("You must install the tqdm library to use the bar feature\n")
+        sys.stdout.write("To install, at the prompt type: \"pip install tqdm\"")
+        sys.exit(0)
+
 
     if args.list:
         transport.writeln("local l = file.list();for k,v in pairs(l) do print('name:'..k..', size:'..v)end\r", 0)
@@ -249,6 +265,7 @@ if __name__ == '__main__':
     # Verify the selected file will not exceed the size of the serial buffer.
     # The size of the buffer is 256. This script does not accept files with
     # lines longer than 230 characters to have some room for command overhead.
+    num_lines = 0
     for ln in f:
         if len(ln) > 230:
             sys.stderr.write("File \"%s\" contains a line with more than 240 "
@@ -256,6 +273,7 @@ if __name__ == '__main__':
                              % args.src)
             f.close()
             sys.exit(1)
+        num_lines += 1
 
     # Go back to the beginning of the file after verifying it has the correct
     # line length
@@ -287,9 +305,14 @@ if __name__ == '__main__':
     line = f.readline()
     if args.verbose:
         sys.stderr.write("\r\nStage 3. Start writing data to flash memory...")
-    while line != '':
-        transport.writer(line.strip())
-        line = f.readline()
+    if args.bar:
+        for i in tqdm(range(0, num_lines)):
+            transport.writer(line.strip())
+            line = f.readline()
+    else:
+        while line != '':
+            transport.writer(line.strip())
+            line = f.readline()
 
     # close both files
     f.close()
@@ -323,4 +346,5 @@ if __name__ == '__main__':
     # flush screen
     sys.stdout.flush()
     sys.stderr.flush()
-    sys.stderr.write("\r\n--->>> All done <<<---\r\n")
+    if not args.bar:
+        sys.stderr.write("\r\n--->>> All done <<<---\r\n")
