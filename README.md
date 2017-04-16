@@ -2,26 +2,26 @@
 
 [![Join the chat at https://gitter.im/4refr0nt/luatool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/4refr0nt/luatool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-###Tool for loading Lua-based scripts from file to ESP8266 with nodemcu firmware
+### Tool for loading Lua-based scripts from file to ESP8266 with nodemcu firmware
 
-###Summary
+### Summary
 
 - Allow easy uploading of any Lua-based script into the ESP8266 flash memory with [NodeMcu firmware](https://github.com/nodemcu/nodemcu-firmware)
 
-###Other projects
+### Other projects
 Another my project for NodeMCU: ESPlorer  Integrated Development Environment (IDE) for ESP8266 developers
 - [ESPlorer home page and latest binaries](http://esp8266.ru/esplorer/)
 - [ESPlorer source code](https://github.com/4refr0nt/ESPlorer)
 
-###Requirements
+### Requirements
 
 python 2.7, pyserial (as for esptool)
 
-###Discuss
+### Discuss
 [http://esp8266.ru](http://esp8266.ru/forum/threads/luatool.11/)
 
 
-###Changelog
+### Changelog
 v0.6.4
 - add TCP as possible transport to connect to the module using the supplied telnet server code
 - add --id/-i to query the ID of a module
@@ -61,9 +61,9 @@ v0.4
 - some changes in example file main.lua
 
 
-###Run
+### Run
 
-####Typical use:
+#### Typical use:
 
 
 Edit file init.lua and set SSID and MasterPassword
@@ -127,7 +127,7 @@ connects to your AP and displays MCU's IP address
 
 ```
 
-####Examples:
+#### Examples:
 
 ```
 ./luatool.py --port COM4 --src file.lua --dest main.lua --baud 9600
@@ -158,7 +158,7 @@ If you want load and autoexecute file main.lua, command dofile("main.lua"), you 
 ```
 Typically, place wifi.setmode, wifi.sta.config commands to init.lua file for connecting to you AP with low risk of boot loop, and other code place to main.lua for manually start and debug.
 
-####Alternative use:
+#### Alternative use:
 
 This requires a nodemcu based module already configured to meet the following conditions:
 
@@ -168,7 +168,7 @@ This requires a nodemcu based module already configured to meet the following co
 Now the option **--ip IP[:PORT]** enables you to specify an IP and optionally a port (if changed for the telnet server)
 that will be used to communicate with the module via TCP/IP.
 
-####Examples:
+#### Examples:
 
 ```
 ./luatool.py --ip 192.168.12.34 --src file.lua --dest test.lua --dofile 
