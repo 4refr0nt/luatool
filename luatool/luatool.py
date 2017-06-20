@@ -150,7 +150,7 @@ class TcpSocketTransport(AbstractTransport):
         self.socket.recv(50)
 
     def writeln(self, data, check=1):
-        if len(data) > 0:
+        if len(data) > 0 and not args.bar:
             sys.stdout.write("\r\n->")
             sys.stdout.write(data.split("\r")[0])
         self.socket.sendall(data)
