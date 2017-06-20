@@ -120,7 +120,7 @@ class SerialTransport(AbstractTransport):
         sleep(self.delay)
         if check > 0:
             self.performcheck(data)
-        else:
+        elif not args.bar:
             sys.stdout.write(" -> send without check")
 
     def read(self, length):
@@ -156,7 +156,7 @@ class TcpSocketTransport(AbstractTransport):
         self.socket.sendall(data)
         if check > 0:
             self.performcheck(data)
-        else:
+        elif not args.bar:
             sys.stdout.write(" -> send without check")
 
     def read(self, length):
