@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
     if args.bar and not tqdm_installed:
         sys.stdout.write("You must install the tqdm library to use the bar feature\n")
-        sys.stdout.write("To install, at the prompt type: \"pip install tqdm\"")
+        sys.stdout.write("To install, at the prompt type: \"pip install tqdm\"\n")
         sys.exit(0)
 
 
