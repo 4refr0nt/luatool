@@ -120,7 +120,7 @@ class SerialTransport(AbstractTransport):
         sleep(self.delay)
         if check > 0:
             self.performcheck(data)
-        else:
+        elif not args.bar:
             sys.stdout.write(" -> send without check")
 
     def read(self, length):
@@ -150,13 +150,13 @@ class TcpSocketTransport(AbstractTransport):
         self.socket.recv(50)
 
     def writeln(self, data, check=1):
-        if len(data) > 0:
+        if len(data) > 0 and not args.bar:
             sys.stdout.write("\r\n->")
             sys.stdout.write(data.split("\r")[0])
         self.socket.sendall(data)
         if check > 0:
             self.performcheck(data)
-        else:
+        elif not args.bar:
             sys.stdout.write(" -> send without check")
 
     def read(self, length):
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
     if args.bar and not tqdm_installed:
         sys.stdout.write("You must install the tqdm library to use the bar feature\n")
-        sys.stdout.write("To install, at the prompt type: \"pip install tqdm\"")
+        sys.stdout.write("To install, at the prompt type: \"pip install tqdm\"\n")
         sys.exit(0)
 
 
