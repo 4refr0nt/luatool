@@ -1,36 +1,42 @@
---
--- setup a telnet server that hooks the sockets input
---
-function setupTelnetServer()
-    inUse = false
-    function listenFun(sock)
-        if inUse then
-            sock:send("Already in use.\n")
-            sock:close()
-            return
+-- a simple telnet server
+
+-- restart server if needed
+if telnet_srv ~= nil then
+    telnet_srv:close()
+end
+telnet_srv = net.createServer(net.TCP, 180)
+
+telnet_srv:listen(23, function(socket)
+    local fifo = {}
+    local fifo_drained = true
+
+    local function sender(c)
+        if #fifo > 0 then
+            c:send(table.remove(fifo, 1))
+        else
+            fifo_drained = true
         end
-        inUse = true
-
-        function s_output(str)
-            if(sock ~=nil) then
-                sock:send(str)
-            end
-        end
-
-        node.output(s_output, 0)
-
-        sock:on("receive",function(sock, input)
-                node.input(input)
-            end)
-
-        sock:on("disconnection",function(sock)
-                node.output(nil)
-                inUse = false
-            end)
-
-        sock:send("Welcome to NodeMCU world.\n> ")
     end
 
-    telnetServer = net.createServer(net.TCP, 180)
-    telnetServer:listen(23, listenFun)
-end
+    local function s_output(str)
+        table.insert(fifo, str)
+        if socket ~= nil and fifo_drained then
+            fifo_drained = false
+            sender(socket)
+        end
+    end
+
+    node.output(s_output, 0)   -- re-direct output to function s_ouput.
+
+    socket:on("receive", function(c, l)
+        node.input(l)           -- works like pcall(loadstring(l)) but support multiple separate line
+    end)
+    socket:on("disconnection", function(c)
+        node.output(nil)        -- un-regist the redirect output function, output goes to serial
+    end)
+    socket:on("sent", sender)
+
+    print("Welcome to NodeMCU world.")
+end)
+
+print("Telnet server running...")
